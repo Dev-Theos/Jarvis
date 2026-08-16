@@ -28,25 +28,32 @@ export class MultiProviderLLM implements LLMClient {
 
   private async openaiCompatible(messages: LLMMessage[], model: string): Promise<string> {
     const s = this.getSettings();
-    if (!s.llmApiKey) throw new Error('Missing OpenAI-compatible API key');
+    const key = (s.llmApiKey ?? '').trim();
+    if (!key) throw new Error('Missing OpenAI-compatible API key');
     return this.chatCompletions(
       `${s.llmBaseUrl.replace(/\/$/, '')}/chat/completions`,
-      s.llmApiKey,
+      key,
       model,
       messages,
-      'LLM',
+      'OpenAI-compatible',
     );
   }
 
   private async openrouter(messages: LLMMessage[], model: string): Promise<string> {
     const s = this.getSettings();
-    if (!s.openRouterApiKey) throw new Error('Missing OpenRouter API key');
+    const key = (s.openRouterApiKey ?? '').trim();
+    if (!key) throw new Error('Missing OpenRouter API key');
     return this.chatCompletions(
       'https://openrouter.ai/api/v1/chat/completions',
-      s.openRouterApiKey,
+      key,
       model,
       messages,
       'OpenRouter',
+      {
+        // Optional attribution headers recommended by OpenRouter.
+        'HTTP-Referer': 'https://github.com/dev-theos/jarvis',
+        'X-Title': 'JARVIS',
+      },
     );
   }
 
@@ -56,12 +63,14 @@ export class MultiProviderLLM implements LLMClient {
     model: string,
     messages: LLMMessage[],
     providerLabel: string,
+    extraHeaders: Record<string, string> = {},
   ): Promise<string> {
     const res = await fetch(url, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${apiKey}`,
+        ...extraHeaders,
       },
       body: JSON.stringify({
         model,
@@ -71,6 +80,13 @@ export class MultiProviderLLM implements LLMClient {
     });
     if (!res.ok) {
       const body = scrubSecrets(await res.text());
+      if (res.status === 401 || res.status === 403) {
+        throw new Error(
+          `${providerLabel} rejected the API key (${res.status}). ` +
+            `Open Settings and re-enter a valid ${providerLabel} key` +
+            (providerLabel === 'OpenRouter' ? ' (it should start with "sk-or-").' : '.'),
+        );
+      }
       throw new Error(`${providerLabel} error ${res.status}: ${body.slice(0, 400)}`);
     }
     const data = (await res.json()) as {
@@ -81,7 +97,8 @@ export class MultiProviderLLM implements LLMClient {
 
   private async anthropic(messages: LLMMessage[], model: string): Promise<string> {
     const s = this.getSettings();
-    if (!s.anthropicApiKey) throw new Error('Missing Anthropic API key');
+    const key = (s.anthropicApiKey ?? '').trim();
+    if (!key) throw new Error('Missing Anthropic API key');
     const system = messages.filter((m) => m.role === 'system').map((m) => m.content).join('\n\n');
     const converted = messages
       .filter((m) => m.role !== 'system')
@@ -90,7 +107,7 @@ export class MultiProviderLLM implements LLMClient {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-api-key': s.anthropicApiKey,
+        'x-api-key': key,
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
@@ -102,6 +119,11 @@ export class MultiProviderLLM implements LLMClient {
     });
     if (!res.ok) {
       const body = scrubSecrets(await res.text());
+      if (res.status === 401 || res.status === 403) {
+        throw new Error(
+          `Anthropic rejected the API key (${res.status}). Open Settings and re-enter a valid Anthropic key.`,
+        );
+      }
       throw new Error(`Anthropic error ${res.status}: ${body.slice(0, 400)}`);
     }
     const data = (await res.json()) as {

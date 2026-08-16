@@ -539,6 +539,11 @@
   align-items: center;
   gap: 0.5rem;
 }
+.settings .check--clear {
+  margin-top: -0.5rem;
+  font-size: 0.78rem;
+  color: var(--amber);
+}
 
 .modal-backdrop {
   position: absolute;

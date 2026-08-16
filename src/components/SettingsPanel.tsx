@@ -21,6 +21,9 @@ export function SettingsPanel({
   const [openRouterKey, setOpenRouterKey] = useState('');
   const [fishKey, setFishKey] = useState('');
   const [fishRef, setFishRef] = useState(settings.fishReferenceId);
+  const [clearLlm, setClearLlm] = useState(false);
+  const [clearAnthropic, setClearAnthropic] = useState(false);
+  const [clearOpenRouter, setClearOpenRouter] = useState(false);
   const [saving, setSaving] = useState(false);
 
   async function submit(e: FormEvent) {
@@ -42,8 +45,11 @@ export function SettingsPanel({
         patch.openRouterModel = modelPref.slice('openrouter:'.length);
       }
       if (llmKey.trim()) patch.llmApiKey = llmKey.trim();
+      else if (clearLlm) patch.llmApiKey = '';
       if (anthropicKey.trim()) patch.anthropicApiKey = anthropicKey.trim();
+      else if (clearAnthropic) patch.anthropicApiKey = '';
       if (openRouterKey.trim()) patch.openRouterApiKey = openRouterKey.trim();
+      else if (clearOpenRouter) patch.openRouterApiKey = '';
       if (fishKey.trim()) patch.fishApiKey = fishKey.trim();
       await onSave(patch);
       onClose();
@@ -96,8 +102,19 @@ export function SettingsPanel({
             onChange={(e) => setLlmKey(e.target.value)}
             placeholder="Leave blank to keep existing"
             autoComplete="off"
+            disabled={clearLlm}
           />
         </label>
+        {settings.hasLlmKey && (
+          <label className="check check--clear">
+            <input
+              type="checkbox"
+              checked={clearLlm}
+              onChange={(e) => setClearLlm(e.target.checked)}
+            />
+            Clear saved LLM key
+          </label>
+        )}
         <label>
           Anthropic API key {settings.hasAnthropicKey ? '(set)' : '(optional)'}
           <input
@@ -106,8 +123,19 @@ export function SettingsPanel({
             onChange={(e) => setAnthropicKey(e.target.value)}
             placeholder="Leave blank to keep existing"
             autoComplete="off"
+            disabled={clearAnthropic}
           />
         </label>
+        {settings.hasAnthropicKey && (
+          <label className="check check--clear">
+            <input
+              type="checkbox"
+              checked={clearAnthropic}
+              onChange={(e) => setClearAnthropic(e.target.checked)}
+            />
+            Clear saved Anthropic key
+          </label>
+        )}
         <label>
           OpenRouter API key {settings.hasOpenRouterKey ? '(set)' : '(optional)'}
           <input
@@ -116,8 +144,19 @@ export function SettingsPanel({
             onChange={(e) => setOpenRouterKey(e.target.value)}
             placeholder="sk-or-… (leave blank to keep existing)"
             autoComplete="off"
+            disabled={clearOpenRouter}
           />
         </label>
+        {settings.hasOpenRouterKey && (
+          <label className="check check--clear">
+            <input
+              type="checkbox"
+              checked={clearOpenRouter}
+              onChange={(e) => setClearOpenRouter(e.target.checked)}
+            />
+            Clear saved OpenRouter key
+          </label>
+        )}
         <label>
           Fish Audio API key {settings.hasFishKey ? '(set)' : '(optional)'}
           <input

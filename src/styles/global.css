@@ -41,6 +41,8 @@ input,
 textarea {
   font: inherit;
   color: inherit;
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 button {

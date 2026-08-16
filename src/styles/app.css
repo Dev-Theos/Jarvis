@@ -414,11 +414,32 @@
   background: rgba(10, 18, 32, 0.9);
   border: 1px solid var(--line);
   padding: 0.65rem 0.75rem;
+  user-select: text;
+  -webkit-user-select: text;
 }
 .settings .check {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+.secret-field__label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.secret-field__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+}
+.secret-field__row input {
+  min-width: 0;
+}
+.secret-field__toggle {
+  white-space: nowrap;
+}
+.secret-field__hint {
+  font-size: 0.72rem;
+  color: rgba(127, 151, 173, 0.85);
 }
 
 .modal-backdrop {

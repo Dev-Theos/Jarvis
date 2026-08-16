@@ -1,6 +1,46 @@
 import { FormEvent, useState } from 'react';
 import type { PublicSettings } from '../types';
 
+function SecretField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <label className="secret-field">
+      <span className="secret-field__label">{label}</span>
+      <div className="secret-field__row">
+        <input
+          type={visible ? 'text' : 'password'}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoComplete="off"
+          spellCheck={false}
+          data-1p-ignore
+          data-lpignore="true"
+        />
+        <button
+          type="button"
+          className="ghost secret-field__toggle"
+          onClick={() => setVisible((v) => !v)}
+          aria-label={visible ? 'Hide key' : 'Show key'}
+        >
+          {visible ? 'Hide' : 'Show'}
+        </button>
+      </div>
+      <span className="secret-field__hint">Paste with Ctrl/Cmd+V or right-click → Paste</span>
+    </label>
+  );
+}
+
 export function SettingsPanel({
   settings,
   onClose,
@@ -73,36 +113,24 @@ export function SettingsPanel({
           OpenAI-compatible base URL
           <input value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} />
         </label>
-        <label>
-          LLM API key {settings.hasLlmKey ? '(set)' : '(missing)'}
-          <input
-            type="password"
-            value={llmKey}
-            onChange={(e) => setLlmKey(e.target.value)}
-            placeholder="Leave blank to keep existing"
-            autoComplete="off"
-          />
-        </label>
-        <label>
-          Anthropic API key {settings.hasAnthropicKey ? '(set)' : '(optional)'}
-          <input
-            type="password"
-            value={anthropicKey}
-            onChange={(e) => setAnthropicKey(e.target.value)}
-            placeholder="Leave blank to keep existing"
-            autoComplete="off"
-          />
-        </label>
-        <label>
-          Fish Audio API key {settings.hasFishKey ? '(set)' : '(optional)'}
-          <input
-            type="password"
-            value={fishKey}
-            onChange={(e) => setFishKey(e.target.value)}
-            placeholder="Leave blank to keep existing"
-            autoComplete="off"
-          />
-        </label>
+        <SecretField
+          label={`LLM API key ${settings.hasLlmKey ? '(set)' : '(missing)'}`}
+          value={llmKey}
+          onChange={setLlmKey}
+          placeholder="Paste key, or leave blank to keep existing"
+        />
+        <SecretField
+          label={`Anthropic API key ${settings.hasAnthropicKey ? '(set)' : '(optional)'}`}
+          value={anthropicKey}
+          onChange={setAnthropicKey}
+          placeholder="Paste key, or leave blank to keep existing"
+        />
+        <SecretField
+          label={`Fish Audio API key ${settings.hasFishKey ? '(set)' : '(optional)'}`}
+          value={fishKey}
+          onChange={setFishKey}
+          placeholder="Paste key, or leave blank to keep existing"
+        />
         <label>
           Fish reference voice ID
           <input value={fishRef} onChange={(e) => setFishRef(e.target.value)} />

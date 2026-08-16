@@ -84,6 +84,7 @@ export class Orchestrator {
     // Ignore UI placeholder markers
     if (cleaned.llmApiKey === '***') delete cleaned.llmApiKey;
     if (cleaned.anthropicApiKey === '***') delete cleaned.anthropicApiKey;
+    if (cleaned.openRouterApiKey === '***') delete cleaned.openRouterApiKey;
     if (cleaned.fishApiKey === '***') delete cleaned.fishApiKey;
     this.settings = mergeSettings(this.settings, cleaned);
     this.saveSettingsFile();

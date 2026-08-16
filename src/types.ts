@@ -4,7 +4,8 @@ export type ModelPreference =
   | 'openai:standard'
   | 'openai:strong'
   | 'openai:strongest'
-  | 'anthropic';
+  | 'anthropic'
+  | `openrouter:${string}`;
 
 export type PublicSettings = {
   wakePhrases: string[];
@@ -17,8 +18,10 @@ export type PublicSettings = {
   strongModel: string;
   strongestModel: string;
   anthropicModel: string;
+  openRouterModel: string;
   hasLlmKey: boolean;
   hasAnthropicKey: boolean;
+  hasOpenRouterKey: boolean;
   hasFishKey: boolean;
   fishReferenceId: string;
 };

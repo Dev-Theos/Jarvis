@@ -46,6 +46,7 @@ function saveEncryptedSecrets(secretsPath: string, settings: JarvisSettings) {
   const payload = {
     llmApiKey: settings.llmApiKey,
     anthropicApiKey: settings.anthropicApiKey,
+    openRouterApiKey: settings.openRouterApiKey,
     fishApiKey: settings.fishApiKey,
   };
   if (safeStorage.isEncryptionAvailable()) {

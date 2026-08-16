@@ -1,10 +1,15 @@
 import type { JarvisSettings, ModelPreference } from '../types.js';
-import { MODEL_PREFERENCES } from '../types.js';
+import { FIXED_MODEL_PREFERENCES } from '../types.js';
 
 function parseModelPreference(value: string | undefined): ModelPreference {
-  return value && MODEL_PREFERENCES.includes(value as ModelPreference)
-    ? (value as ModelPreference)
-    : 'auto';
+  if (!value) return 'auto';
+  if (FIXED_MODEL_PREFERENCES.includes(value as ModelPreference)) {
+    return value as ModelPreference;
+  }
+  if (value.startsWith('openrouter:') && value.length > 'openrouter:'.length) {
+    return value as ModelPreference;
+  }
+  return 'auto';
 }
 
 export const DEFAULT_SETTINGS: JarvisSettings = {
@@ -20,6 +25,8 @@ export const DEFAULT_SETTINGS: JarvisSettings = {
   strongestModel: process.env.JARVIS_LLM_STRONGEST_MODEL ?? 'gpt-4o',
   anthropicApiKey: process.env.JARVIS_ANTHROPIC_API_KEY ?? '',
   anthropicModel: process.env.JARVIS_ANTHROPIC_MODEL ?? 'claude-sonnet-4-20250514',
+  openRouterApiKey: process.env.JARVIS_OPENROUTER_API_KEY ?? '',
+  openRouterModel: process.env.JARVIS_OPENROUTER_MODEL ?? 'openai/gpt-4o-mini',
   fishApiKey: process.env.JARVIS_FISH_API_KEY ?? '',
   fishReferenceId: process.env.JARVIS_FISH_REFERENCE_ID ?? '',
 };
@@ -50,8 +57,10 @@ export function publicSettings(settings: JarvisSettings) {
     strongModel: settings.strongModel,
     strongestModel: settings.strongestModel,
     anthropicModel: settings.anthropicModel,
+    openRouterModel: settings.openRouterModel,
     hasLlmKey: Boolean(settings.llmApiKey),
     hasAnthropicKey: Boolean(settings.anthropicApiKey),
+    hasOpenRouterKey: Boolean(settings.openRouterApiKey),
     hasFishKey: Boolean(settings.fishApiKey),
     fishReferenceId: settings.fishReferenceId,
   };
@@ -60,11 +69,12 @@ export function publicSettings(settings: JarvisSettings) {
 /** Persistable settings without raw secrets (flags only). */
 export function durableSettings(settings: JarvisSettings): Omit<
   JarvisSettings,
-  'llmApiKey' | 'anthropicApiKey' | 'fishApiKey'
+  'llmApiKey' | 'anthropicApiKey' | 'fishApiKey' | 'openRouterApiKey'
 > & {
   llmApiKey: '';
   anthropicApiKey: '';
   fishApiKey: '';
+  openRouterApiKey: '';
 } {
   return {
     wakePhrases: settings.wakePhrases,
@@ -79,6 +89,8 @@ export function durableSettings(settings: JarvisSettings): Omit<
     strongestModel: settings.strongestModel,
     anthropicApiKey: '',
     anthropicModel: settings.anthropicModel,
+    openRouterApiKey: '',
+    openRouterModel: settings.openRouterModel,
     fishApiKey: '',
     fishReferenceId: settings.fishReferenceId,
   };

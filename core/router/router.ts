@@ -75,6 +75,7 @@ export function selectModel(
 ): ModelChoice {
   const hasOpenAI = Boolean(settings.llmApiKey);
   const hasAnthropic = Boolean(settings.anthropicApiKey);
+  const hasOpenRouter = Boolean(settings.openRouterApiKey);
 
   // Explicit user selection overrides automatic routing when its key is set.
   const pref = settings.modelPreference ?? 'auto';
@@ -84,6 +85,15 @@ export function selectModel(
       provider: 'anthropic',
       model: settings.anthropicModel,
       reason: 'Manually selected Anthropic',
+    };
+  }
+  if (pref.startsWith('openrouter:') && hasOpenRouter) {
+    const model = pref.slice('openrouter:'.length) || settings.openRouterModel;
+    return {
+      tier: 'strong',
+      provider: 'openrouter',
+      model,
+      reason: 'Manually selected OpenRouter model',
     };
   }
   if (pref.startsWith('openai:') && hasOpenAI) {
@@ -105,6 +115,15 @@ export function selectModel(
   }
 
   if (!hasOpenAI && !hasAnthropic) {
+    // Fall back to OpenRouter when it is the only configured provider.
+    if (hasOpenRouter) {
+      return {
+        tier: 'strong',
+        provider: 'openrouter',
+        model: settings.openRouterModel,
+        reason: 'Only OpenRouter key available',
+      };
+    }
     return {
       tier: 'local',
       provider: 'local',

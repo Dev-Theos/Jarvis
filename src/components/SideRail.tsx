@@ -29,7 +29,9 @@ export function SideRail({
         <div>
           <dt>Models</dt>
           <dd>
-            {settings?.hasLlmKey || settings?.hasAnthropicKey ? 'cloud ready' : 'local mode'}
+            {settings?.hasLlmKey || settings?.hasAnthropicKey || settings?.hasOpenRouterKey
+              ? 'cloud ready'
+              : 'local mode'}
             {settings?.hasFishKey ? ' · TTS ready' : ' · TTS unset'}
           </dd>
         </div>

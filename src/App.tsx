@@ -58,8 +58,10 @@ export default function App() {
         strongModel: 'gpt-4o',
         strongestModel: 'gpt-4o',
         anthropicModel: 'claude-sonnet-4-20250514',
+        openRouterModel: 'openai/gpt-4o-mini',
         hasLlmKey: false,
         hasAnthropicKey: false,
+        hasOpenRouterKey: false,
         hasFishKey: false,
         fishReferenceId: '',
       });
@@ -144,7 +146,11 @@ export default function App() {
   async function selectModel(pref: ModelPreference) {
     setSettings((prev) => (prev ? { ...prev, modelPreference: pref } : prev));
     if (!window.jarvis) return;
-    const next = await window.jarvis.updateSettings({ modelPreference: pref });
+    const patch: Record<string, unknown> = { modelPreference: pref };
+    if (pref.startsWith('openrouter:')) {
+      patch.openRouterModel = pref.slice('openrouter:'.length);
+    }
+    const next = await window.jarvis.updateSettings(patch);
     setSettings(next);
   }
 

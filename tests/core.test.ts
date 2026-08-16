@@ -78,6 +78,42 @@ describe('router', () => {
     });
     expect(choice.provider).toBe('local');
   });
+
+  it('honors a manual OpenRouter model selection', () => {
+    const choice = selectModel(analyzeIntent('hello'), {
+      ...DEFAULT_SETTINGS,
+      llmApiKey: '',
+      anthropicApiKey: '',
+      openRouterApiKey: 'sk-or-test',
+      modelPreference: 'openrouter:meta-llama/llama-3.1-70b-instruct',
+    });
+    expect(choice.provider).toBe('openrouter');
+    expect(choice.model).toBe('meta-llama/llama-3.1-70b-instruct');
+  });
+
+  it('falls back to OpenRouter in auto mode when it is the only key', () => {
+    const choice = selectModel(analyzeIntent('hello'), {
+      ...DEFAULT_SETTINGS,
+      llmApiKey: '',
+      anthropicApiKey: '',
+      openRouterApiKey: 'sk-or-test',
+      openRouterModel: 'openai/gpt-4o-mini',
+      modelPreference: 'auto',
+    });
+    expect(choice.provider).toBe('openrouter');
+    expect(choice.model).toBe('openai/gpt-4o-mini');
+  });
+
+  it('ignores an OpenRouter selection when its key is missing', () => {
+    const choice = selectModel(analyzeIntent('hello'), {
+      ...DEFAULT_SETTINGS,
+      llmApiKey: '',
+      anthropicApiKey: '',
+      openRouterApiKey: '',
+      modelPreference: 'openrouter:openai/gpt-4o',
+    });
+    expect(choice.provider).toBe('local');
+  });
 });
 
 describe('wake phrase', () => {

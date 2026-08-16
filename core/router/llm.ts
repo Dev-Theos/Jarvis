@@ -20,17 +20,48 @@ export class MultiProviderLLM implements LLMClient {
     if (choice.provider === 'anthropic') {
       return this.anthropic(messages, choice.model);
     }
+    if (choice.provider === 'openrouter') {
+      return this.openrouter(messages, choice.model);
+    }
     return this.openaiCompatible(messages, choice.model);
   }
 
   private async openaiCompatible(messages: LLMMessage[], model: string): Promise<string> {
     const s = this.getSettings();
     if (!s.llmApiKey) throw new Error('Missing OpenAI-compatible API key');
-    const res = await fetch(`${s.llmBaseUrl.replace(/\/$/, '')}/chat/completions`, {
+    return this.chatCompletions(
+      `${s.llmBaseUrl.replace(/\/$/, '')}/chat/completions`,
+      s.llmApiKey,
+      model,
+      messages,
+      'LLM',
+    );
+  }
+
+  private async openrouter(messages: LLMMessage[], model: string): Promise<string> {
+    const s = this.getSettings();
+    if (!s.openRouterApiKey) throw new Error('Missing OpenRouter API key');
+    return this.chatCompletions(
+      'https://openrouter.ai/api/v1/chat/completions',
+      s.openRouterApiKey,
+      model,
+      messages,
+      'OpenRouter',
+    );
+  }
+
+  private async chatCompletions(
+    url: string,
+    apiKey: string,
+    model: string,
+    messages: LLMMessage[],
+    providerLabel: string,
+  ): Promise<string> {
+    const res = await fetch(url, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        authorization: `Bearer ${s.llmApiKey}`,
+        authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model,
@@ -40,7 +71,7 @@ export class MultiProviderLLM implements LLMClient {
     });
     if (!res.ok) {
       const body = scrubSecrets(await res.text());
-      throw new Error(`LLM error ${res.status}: ${body.slice(0, 400)}`);
+      throw new Error(`${providerLabel} error ${res.status}: ${body.slice(0, 400)}`);
     }
     const data = (await res.json()) as {
       choices?: Array<{ message?: { content?: string } }>;

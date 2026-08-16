@@ -54,7 +54,7 @@ export interface IntentAnalysis {
 
 export interface ModelChoice {
   tier: 'cheap' | 'standard' | 'strong' | 'strongest' | 'local';
-  provider: 'openai_compatible' | 'anthropic' | 'local';
+  provider: 'openai_compatible' | 'anthropic' | 'openrouter' | 'local';
   model: string;
   reason: string;
 }
@@ -62,6 +62,7 @@ export interface ModelChoice {
 /**
  * User-facing LLM selection. `auto` keeps the automatic difficulty-based
  * routing; the other values pin a specific provider/tier when its key is set.
+ * `openrouter:<modelId>` pins a specific OpenRouter model.
  */
 export type ModelPreference =
   | 'auto'
@@ -69,9 +70,11 @@ export type ModelPreference =
   | 'openai:standard'
   | 'openai:strong'
   | 'openai:strongest'
-  | 'anthropic';
+  | 'anthropic'
+  | `openrouter:${string}`;
 
-export const MODEL_PREFERENCES: readonly ModelPreference[] = [
+/** The fixed (non-OpenRouter) preferences, used for env validation. */
+export const FIXED_MODEL_PREFERENCES: readonly ModelPreference[] = [
   'auto',
   'openai:cheap',
   'openai:standard',
@@ -116,6 +119,8 @@ export interface JarvisSettings {
   strongestModel: string;
   anthropicApiKey: string;
   anthropicModel: string;
+  openRouterApiKey: string;
+  openRouterModel: string;
   fishApiKey: string;
   fishReferenceId: string;
 }

@@ -18,6 +18,7 @@ export function SettingsPanel({
   const [llmKey, setLlmKey] = useState('');
   const [baseUrl, setBaseUrl] = useState(settings.llmBaseUrl);
   const [anthropicKey, setAnthropicKey] = useState('');
+  const [openRouterKey, setOpenRouterKey] = useState('');
   const [fishKey, setFishKey] = useState('');
   const [fishRef, setFishRef] = useState(settings.fishReferenceId);
   const [saving, setSaving] = useState(false);
@@ -37,8 +38,12 @@ export function SettingsPanel({
         llmBaseUrl: baseUrl,
         fishReferenceId: fishRef,
       };
+      if (modelPref.startsWith('openrouter:')) {
+        patch.openRouterModel = modelPref.slice('openrouter:'.length);
+      }
       if (llmKey.trim()) patch.llmApiKey = llmKey.trim();
       if (anthropicKey.trim()) patch.anthropicApiKey = anthropicKey.trim();
+      if (openRouterKey.trim()) patch.openRouterApiKey = openRouterKey.trim();
       if (fishKey.trim()) patch.fishApiKey = fishKey.trim();
       await onSave(patch);
       onClose();
@@ -100,6 +105,16 @@ export function SettingsPanel({
             value={anthropicKey}
             onChange={(e) => setAnthropicKey(e.target.value)}
             placeholder="Leave blank to keep existing"
+            autoComplete="off"
+          />
+        </label>
+        <label>
+          OpenRouter API key {settings.hasOpenRouterKey ? '(set)' : '(optional)'}
+          <input
+            type="password"
+            value={openRouterKey}
+            onChange={(e) => setOpenRouterKey(e.target.value)}
+            placeholder="sk-or-… (leave blank to keep existing)"
             autoComplete="off"
           />
         </label>

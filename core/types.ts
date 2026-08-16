@@ -59,6 +59,27 @@ export interface ModelChoice {
   reason: string;
 }
 
+/**
+ * User-facing LLM selection. `auto` keeps the automatic difficulty-based
+ * routing; the other values pin a specific provider/tier when its key is set.
+ */
+export type ModelPreference =
+  | 'auto'
+  | 'openai:cheap'
+  | 'openai:standard'
+  | 'openai:strong'
+  | 'openai:strongest'
+  | 'anthropic';
+
+export const MODEL_PREFERENCES: readonly ModelPreference[] = [
+  'auto',
+  'openai:cheap',
+  'openai:standard',
+  'openai:strong',
+  'openai:strongest',
+  'anthropic',
+];
+
 export interface TaskStep {
   id: string;
   title: string;
@@ -86,6 +107,7 @@ export interface JarvisSettings {
   wakePhrases: string[];
   userAddress: string;
   voiceOutputEnabled: boolean;
+  modelPreference: ModelPreference;
   llmApiKey: string;
   llmBaseUrl: string;
   cheapModel: string;

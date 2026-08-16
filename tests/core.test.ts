@@ -45,6 +45,39 @@ describe('router', () => {
     });
     expect(choice.provider).toBe('local');
   });
+
+  it('honors a manual OpenAI model selection', () => {
+    const choice = selectModel(analyzeIntent('hello'), {
+      ...DEFAULT_SETTINGS,
+      llmApiKey: 'sk-test',
+      anthropicApiKey: '',
+      modelPreference: 'openai:strongest',
+    });
+    expect(choice.provider).toBe('openai_compatible');
+    expect(choice.tier).toBe('strongest');
+    expect(choice.model).toBe(DEFAULT_SETTINGS.strongestModel);
+  });
+
+  it('honors a manual Anthropic selection', () => {
+    const choice = selectModel(analyzeIntent('hello'), {
+      ...DEFAULT_SETTINGS,
+      llmApiKey: 'sk-test',
+      anthropicApiKey: 'sk-ant',
+      modelPreference: 'anthropic',
+    });
+    expect(choice.provider).toBe('anthropic');
+    expect(choice.model).toBe(DEFAULT_SETTINGS.anthropicModel);
+  });
+
+  it('ignores a manual selection when its provider key is missing', () => {
+    const choice = selectModel(analyzeIntent('hello'), {
+      ...DEFAULT_SETTINGS,
+      llmApiKey: '',
+      anthropicApiKey: '',
+      modelPreference: 'openai:strong',
+    });
+    expect(choice.provider).toBe('local');
+  });
 });
 
 describe('wake phrase', () => {

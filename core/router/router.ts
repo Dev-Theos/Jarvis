@@ -76,6 +76,34 @@ export function selectModel(
   const hasOpenAI = Boolean(settings.llmApiKey);
   const hasAnthropic = Boolean(settings.anthropicApiKey);
 
+  // Explicit user selection overrides automatic routing when its key is set.
+  const pref = settings.modelPreference ?? 'auto';
+  if (pref === 'anthropic' && hasAnthropic) {
+    return {
+      tier: 'strong',
+      provider: 'anthropic',
+      model: settings.anthropicModel,
+      reason: 'Manually selected Anthropic',
+    };
+  }
+  if (pref.startsWith('openai:') && hasOpenAI) {
+    const tier = pref.slice('openai:'.length) as Exclude<ModelChoice['tier'], 'local'>;
+    const model =
+      tier === 'cheap'
+        ? settings.cheapModel
+        : tier === 'standard'
+          ? settings.standardModel
+          : tier === 'strong'
+            ? settings.strongModel
+            : settings.strongestModel;
+    return {
+      tier,
+      provider: 'openai_compatible',
+      model,
+      reason: `Manually selected ${tier} model`,
+    };
+  }
+
   if (!hasOpenAI && !hasAnthropic) {
     return {
       tier: 'local',

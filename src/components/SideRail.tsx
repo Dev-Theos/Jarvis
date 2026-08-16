@@ -1,15 +1,18 @@
-import type { PublicSettings, TaskState } from '../types';
+import type { ModelPreference, PublicSettings, TaskState } from '../types';
+import { ModelSelect } from './ModelSelect';
 
 export function SideRail({
   voiceStatus,
   toolActivity,
   task,
   settings,
+  onSelectModel,
 }: {
   voiceStatus: string;
   toolActivity: string;
   task: TaskState | null;
   settings: PublicSettings | null;
+  onSelectModel: (pref: ModelPreference) => void;
 }) {
   return (
     <aside className="rail">
@@ -31,6 +34,14 @@ export function SideRail({
           </dd>
         </div>
       </dl>
+
+      {settings && (
+        <ModelSelect
+          value={settings.modelPreference}
+          settings={settings}
+          onSelect={onSelectModel}
+        />
+      )}
 
       <h2>Current task</h2>
       {!task && <p className="muted">Idle</p>}

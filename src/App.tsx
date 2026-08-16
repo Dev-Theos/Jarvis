@@ -3,6 +3,7 @@ import type {
   AuditEntry,
   ChatMessage,
   MemoryRecord,
+  ModelPreference,
   OrchestratorEvent,
   PermissionRequest,
   PublicSettings,
@@ -50,6 +51,7 @@ export default function App() {
         wakePhrases: ['jarvis'],
         userAddress: 'sir',
         voiceOutputEnabled: true,
+        modelPreference: 'auto',
         llmBaseUrl: 'https://api.openai.com/v1',
         cheapModel: 'gpt-4o-mini',
         standardModel: 'gpt-4o-mini',
@@ -139,6 +141,13 @@ export default function App() {
     setBusy(false);
   }
 
+  async function selectModel(pref: ModelPreference) {
+    setSettings((prev) => (prev ? { ...prev, modelPreference: pref } : prev));
+    if (!window.jarvis) return;
+    const next = await window.jarvis.updateSettings({ modelPreference: pref });
+    setSettings(next);
+  }
+
   if (!ready) {
     return (
       <div className="boot">
@@ -204,6 +213,7 @@ export default function App() {
           toolActivity={toolActivity}
           task={task}
           settings={settings}
+          onSelectModel={(pref) => void selectModel(pref)}
         />
       </main>
 

@@ -1,7 +1,16 @@
+export type ModelPreference =
+  | 'auto'
+  | 'openai:cheap'
+  | 'openai:standard'
+  | 'openai:strong'
+  | 'openai:strongest'
+  | 'anthropic';
+
 export type PublicSettings = {
   wakePhrases: string[];
   userAddress: string;
   voiceOutputEnabled: boolean;
+  modelPreference: ModelPreference;
   llmBaseUrl: string;
   cheapModel: string;
   standardModel: string;

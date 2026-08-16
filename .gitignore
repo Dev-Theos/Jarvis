@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+dist/
+dist-electron/
+release/
+
+# Local data & secrets
+.env
+data/*.db
+data/*.db-*
+data/workspace/**
+!data/workspace/.gitkeep
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

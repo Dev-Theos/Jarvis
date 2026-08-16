@@ -1,31 +1,23 @@
-import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { MemoryRecord, MemoryType } from '../types.js';
 
 /**
- * Local persistent memory.
- * Note: Node's bundled SQLite may omit FTS5, so search uses LIKE + simple ranking.
+ * Local persistent memory backed by a JSON file.
+ * Avoids Electron/Node sqlite builtin differences so the desktop app boots reliably.
  */
 export class MemoryStore {
-  private db: DatabaseSync;
+  private filePath: string;
+  private records: MemoryRecord[] = [];
 
   constructor(dbPath: string) {
-    fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-    this.db = new DatabaseSync(dbPath);
-    this.db.exec(`
-      CREATE TABLE IF NOT EXISTS memories (
-        id TEXT PRIMARY KEY,
-        type TEXT NOT NULL,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        tags TEXT NOT NULL DEFAULT '',
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
-      );
-      CREATE INDEX IF NOT EXISTS idx_memories_updated ON memories(updated_at DESC);
-    `);
+    // Keep the same path convention from callers (*.db) but persist JSON beside it.
+    this.filePath = dbPath.endsWith('.db')
+      ? dbPath.replace(/\.db$/i, '.json')
+      : `${dbPath}.json`;
+    fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
+    this.load();
   }
 
   remember(input: {
@@ -44,20 +36,8 @@ export class MemoryStore {
       createdAt: now,
       updatedAt: now,
     };
-    this.db
-      .prepare(
-        `INSERT INTO memories (id, type, title, content, tags, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      )
-      .run(
-        record.id,
-        record.type,
-        record.title,
-        record.content,
-        record.tags,
-        record.createdAt,
-        record.updatedAt,
-      );
+    this.records.unshift(record);
+    this.save();
     return record;
   }
 
@@ -72,31 +52,21 @@ export class MemoryStore {
       ...patch,
       updatedAt: new Date().toISOString(),
     };
-    this.db
-      .prepare(
-        `UPDATE memories SET type=?, title=?, content=?, tags=?, updated_at=? WHERE id=?`,
-      )
-      .run(
-        updated.type,
-        updated.title,
-        updated.content,
-        updated.tags,
-        updated.updatedAt,
-        id,
-      );
+    this.records = this.records.map((r) => (r.id === id ? updated : r));
+    this.save();
     return updated;
   }
 
   get(id: string): MemoryRecord | null {
-    const row = this.db
-      .prepare(`SELECT * FROM memories WHERE id = ?`)
-      .get(id) as Record<string, string> | undefined;
-    return row ? this.map(row) : null;
+    return this.records.find((r) => r.id === id) ?? null;
   }
 
   forget(id: string): boolean {
-    const result = this.db.prepare(`DELETE FROM memories WHERE id = ?`).run(id);
-    return Number(result.changes) > 0;
+    const before = this.records.length;
+    this.records = this.records.filter((r) => r.id !== id);
+    if (this.records.length === before) return false;
+    this.save();
+    return true;
   }
 
   forgetMatching(query: string): MemoryRecord[] {
@@ -115,13 +85,8 @@ export class MemoryStore {
       .map((t) => t.replace(/[^a-z0-9_-]/g, ''))
       .filter((t) => t.length > 1);
 
-    const rows = this.db
-      .prepare(`SELECT * FROM memories ORDER BY updated_at DESC LIMIT 500`)
-      .all() as Record<string, string>[];
-
-    const scored = rows
-      .map((row) => {
-        const record = this.map(row);
+    return this.records
+      .map((record) => {
         const hay = `${record.title} ${record.content} ${record.tags}`.toLowerCase();
         let score = 0;
         if (hay.includes(q.toLowerCase())) score += 10;
@@ -134,15 +99,13 @@ export class MemoryStore {
       .sort((a, b) => b.score - a.score)
       .slice(0, limit)
       .map((x) => x.record);
-
-    return scored;
   }
 
   list(limit = 50): MemoryRecord[] {
-    const rows = this.db
-      .prepare(`SELECT * FROM memories ORDER BY updated_at DESC LIMIT ?`)
-      .all(limit) as Record<string, string>[];
-    return rows.map((r) => this.map(r));
+    return this.records
+      .slice()
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+      .slice(0, limit);
   }
 
   contextBlock(query: string, limit = 6): string {
@@ -152,18 +115,29 @@ export class MemoryStore {
   }
 
   close(): void {
-    this.db.close();
+    this.save();
   }
 
-  private map(row: Record<string, string>): MemoryRecord {
-    return {
-      id: row.id,
-      type: row.type as MemoryType,
-      title: row.title,
-      content: row.content,
-      tags: row.tags,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-    };
+  private load(): void {
+    try {
+      if (!fs.existsSync(this.filePath)) {
+        this.records = [];
+        return;
+      }
+      const raw = JSON.parse(fs.readFileSync(this.filePath, 'utf8')) as {
+        memories?: MemoryRecord[];
+      };
+      this.records = Array.isArray(raw.memories) ? raw.memories : [];
+    } catch {
+      this.records = [];
+    }
+  }
+
+  private save(): void {
+    fs.writeFileSync(
+      this.filePath,
+      JSON.stringify({ memories: this.records }, null, 2),
+      'utf8',
+    );
   }
 }

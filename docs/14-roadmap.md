@@ -3,7 +3,7 @@
 ## Phase 1 — Smallest working JARVIS (THIS IMPLEMENTATION)
 - **Goal:** One desktop assistant: chat, memory, routing, permissions, basic tools, TTS hook, HUD
 - **Features:** Text chat, memory CRUD, model router, file/shell/web_fetch tools, Fish Audio TTS, PTT STT bridge, audit log, emergency stop
-- **Tech:** Electron, React, TypeScript, node:sqlite, Vitest
+- **Tech:** Electron, React, TypeScript, JSON memory store, Vitest
 - **Done when:** App launches; user can chat; remember/forget works; confirmations work; tests pass; missing keys are clearly reported
 
 ## Phase 2 — Packaging & research

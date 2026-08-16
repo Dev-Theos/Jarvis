@@ -12,7 +12,7 @@
 | Voice auth | Designed (not secure yet) | Speaker embeddings | high_risk gate | Local | 5+ |
 | Model routing | Implemented | Heuristic + cheap classifier | — | Cloud/Local models | 1 |
 | Multi-provider LLMs | Implemented | OpenAI-compat + Anthropic | — | Cloud/Local | 1 |
-| Long-term memory | Implemented | SQLite FTS5 | forget=confirm | Local | 1 |
+| Long-term memory | Implemented | JSON store + search | forget=confirm | Local | 1 |
 | Memory UI edit/delete | Implemented | Memory panel | confirm delete | Local | 1 |
 | Audit log | Implemented | SQLite + UI | — | Local | 1 |
 | Emergency stop | Implemented | AbortController | — | Local | 1 |

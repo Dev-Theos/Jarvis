@@ -8,7 +8,7 @@ These defaults were locked so implementation can proceed without blocking questi
 | Core runtime | Electron main process (Node.js) | Keeps API keys and tools off the renderer |
 | Primary LLM API | OpenAI-compatible HTTP API | Works with OpenAI, Groq, OpenRouter, Ollama, Together, etc. |
 | Optional LLM | Anthropic Messages API | Strong coding/reasoning when configured |
-| Memory store | SQLite via Node `node:sqlite` + FTS5 | Local, searchable, editable, free |
+| Memory store | JSON file store (searchable) | Local, editable, works in all Electron versions without experimental sqlite |
 | Secrets | Electron `safeStorage` + encrypted config file | Never in renderer, never in prompts/logs |
 | TTS | Fish Audio (server-side only) | User already has a key; swappable provider interface |
 | STT (Phase 1) | Web Speech API in renderer, text sent to main | Free, no key; replaceable later with Whisper |

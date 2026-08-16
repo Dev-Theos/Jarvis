@@ -1,7 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import electron from 'vite-plugin-electron/simple';
+import { builtinModules } from 'node:module';
 import path from 'node:path';
+
+const nodeExternals = [
+  'electron',
+  ...builtinModules,
+  ...builtinModules.map((m) => `node:${m}`),
+];
 
 export default defineConfig({
   plugins: [
@@ -12,9 +19,15 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-electron',
-            rollupOptions: {
-              external: ['electron'],
+            lib: {
+              entry: 'electron/main.ts',
+              formats: ['es'],
+              fileName: () => 'main.js',
             },
+            rollupOptions: {
+              external: nodeExternals,
+            },
+            emptyOutDir: false,
           },
         },
       },
@@ -24,8 +37,13 @@ export default defineConfig({
           build: {
             outDir: 'dist-electron',
             rollupOptions: {
-              external: ['electron'],
+              external: nodeExternals,
+              output: {
+                entryFileNames: 'preload.mjs',
+                format: 'es',
+              },
             },
+            emptyOutDir: false,
           },
         },
       },
@@ -40,4 +58,5 @@ export default defineConfig({
   server: {
     port: 5173,
   },
+  clearScreen: false,
 });

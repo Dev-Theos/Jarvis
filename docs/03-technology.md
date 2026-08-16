@@ -5,7 +5,7 @@
 | Desktop | Electron 33+ | Cross-platform, Node in main | Free/OSS | Tauri, Flutter | Heavier RAM than Tauri |
 | UI | React + Vite + TypeScript | Fast DX, typed UI | Free | Svelte, solid | Bundle size |
 | Core language | TypeScript | One stack for UI+core | Free | Python sidecar | Native desktop hooks less mature than Python libs |
-| DB | `node:sqlite` + ranked keyword search | Built into Node 22, local | Free | better-sqlite3 + FTS5, Postgres | Experimental API; FTS5 may be unavailable in Node’s build |
+| DB | JSON file memory store | Portable across Electron/Node; no native sqlite dependency | Free | `node:sqlite`, better-sqlite3, sql.js | Not a SQL database; fine for Phase 1 scale |
 | Secrets | Electron `safeStorage` | OS keychain-backed | Free | age, 1Password CLI | Needs GUI OS keychain availability |
 | LLM routing | OpenAI-compatible + Anthropic | Flexible providers | Usage-based | Only Ollama | Quality depends on keys user supplies |
 | TTS | Fish Audio HTTP API | User has key; good voices | Paid usage | ElevenLabs, Edge TTS, Piper | Network required for Fish |

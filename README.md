@@ -11,8 +11,8 @@ One interface. One identity. One memory. One orchestrator.
 - Push-to-talk voice input (Web Speech API where available)
 - Configurable wake phrases
 - Fish Audio TTS adapter (optional key; main-process only)
-- Local SQLite memory: remember / recall / forget (+ UI)
-  - Search uses ranked keyword matching (Node's SQLite build may omit FTS5)
+- Local JSON memory: remember / recall / forget (+ UI)
+  - Ranked keyword search (portable; no Electron sqlite dependency)
 - Model router (cheap → strongest; OpenAI-compatible + Anthropic)
 - Permission gate with Approve / Deny / Allow-for-session
 - Tools: memory, sandboxed files, confirmed shell, web fetch, coffee-site scaffold

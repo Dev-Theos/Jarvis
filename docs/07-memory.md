@@ -19,9 +19,9 @@ JARVIS does **not** dump every token into long-term memory. The orchestrator wri
 
 ## Indexing & retrieval
 
-- SQLite table `memories(id, type, title, content, tags, created_at, updated_at)`
-- Ranked keyword search over title/content/tags (FTS5 when available in future builds)
-- Optional later: embeddings table for semantic search (Phase 3)
+- JSON file under the user data directory (`memory.json`)
+- Ranked keyword search over title/content/tags
+- Optional later: SQLite/embeddings for larger memory corpora (Phase 3)
 
 Retrieval: hybrid FTS → rank → inject top-k into prompt as “Memory context”.
 

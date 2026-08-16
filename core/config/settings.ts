@@ -1,9 +1,17 @@
-import type { JarvisSettings } from '../types.js';
+import type { JarvisSettings, ModelPreference } from '../types.js';
+import { MODEL_PREFERENCES } from '../types.js';
+
+function parseModelPreference(value: string | undefined): ModelPreference {
+  return value && MODEL_PREFERENCES.includes(value as ModelPreference)
+    ? (value as ModelPreference)
+    : 'auto';
+}
 
 export const DEFAULT_SETTINGS: JarvisSettings = {
   wakePhrases: ['jarvis'],
   userAddress: 'sir',
   voiceOutputEnabled: true,
+  modelPreference: parseModelPreference(process.env.JARVIS_MODEL_PREFERENCE),
   llmApiKey: process.env.JARVIS_LLM_API_KEY ?? '',
   llmBaseUrl: process.env.JARVIS_LLM_BASE_URL ?? 'https://api.openai.com/v1',
   cheapModel: process.env.JARVIS_LLM_CHEAP_MODEL ?? 'gpt-4o-mini',
@@ -35,6 +43,7 @@ export function publicSettings(settings: JarvisSettings) {
     wakePhrases: settings.wakePhrases,
     userAddress: settings.userAddress,
     voiceOutputEnabled: settings.voiceOutputEnabled,
+    modelPreference: settings.modelPreference,
     llmBaseUrl: settings.llmBaseUrl,
     cheapModel: settings.cheapModel,
     standardModel: settings.standardModel,
@@ -61,6 +70,7 @@ export function durableSettings(settings: JarvisSettings): Omit<
     wakePhrases: settings.wakePhrases,
     userAddress: settings.userAddress,
     voiceOutputEnabled: settings.voiceOutputEnabled,
+    modelPreference: settings.modelPreference,
     llmApiKey: '',
     llmBaseUrl: settings.llmBaseUrl,
     cheapModel: settings.cheapModel,

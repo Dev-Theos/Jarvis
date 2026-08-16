@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
-import type { PublicSettings } from '../types';
+import type { ModelPreference, PublicSettings } from '../types';
+import { ModelSelect } from './ModelSelect';
 
 function SecretField({
   label,
@@ -53,6 +54,7 @@ export function SettingsPanel({
   const [wake, setWake] = useState(settings.wakePhrases.join(', '));
   const [address, setAddress] = useState(settings.userAddress);
   const [voiceOut, setVoiceOut] = useState(settings.voiceOutputEnabled);
+  const [modelPref, setModelPref] = useState<ModelPreference>(settings.modelPreference);
   const [llmKey, setLlmKey] = useState('');
   const [baseUrl, setBaseUrl] = useState(settings.llmBaseUrl);
   const [anthropicKey, setAnthropicKey] = useState('');
@@ -71,6 +73,7 @@ export function SettingsPanel({
           .filter(Boolean),
         userAddress: address,
         voiceOutputEnabled: voiceOut,
+        modelPreference: modelPref,
         llmBaseUrl: baseUrl,
         fishReferenceId: fishRef,
       };
@@ -109,6 +112,13 @@ export function SettingsPanel({
           />
           Voice output enabled
         </label>
+        <ModelSelect
+          value={modelPref}
+          settings={settings}
+          onSelect={setModelPref}
+          id="settings-llm-select"
+          label="Active LLM"
+        />
         <label>
           OpenAI-compatible base URL
           <input value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} />

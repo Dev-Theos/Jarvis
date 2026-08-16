@@ -277,6 +277,51 @@
 .rail dd {
   margin: 0.15rem 0 0;
 }
+.model-select {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 1.25rem;
+}
+.model-select__label {
+  color: var(--cyan);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.model-select__input {
+  background: rgba(10, 18, 32, 0.9);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 0.55rem 0.65rem;
+  font-size: 0.82rem;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--cyan) 50%),
+    linear-gradient(135deg, var(--cyan) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.model-select__input:hover {
+  border-color: var(--cyan);
+}
+.model-select__input:focus-visible {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px var(--cyan-dim);
+}
+.model-select__input option {
+  background: var(--bg-1);
+  color: var(--text);
+}
+.model-select__input option:disabled {
+  color: var(--muted);
+}
+.model-select__hint {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
 .task__title {
   margin: 0 0 0.5rem;
   font-size: 0.9rem;
